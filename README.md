@@ -2,6 +2,39 @@
 Using this app, you would configure your ROS system node parameters.
 
 
+## Get Node Names
+### 1) use ros2node api method
+``` python
+import rclpy
+from ros2node.api import get_node_names
+
+rclpy.init()
+manager_node = rclpy.create_node("manager_node")
+nodes = get_node_names(node=manager_node, include_hidden_nodes=True)
+for name, namespace, full_name in nodes:
+    print(full_name)
+manager_node.destroy_node()
+rclpy.shutdown()
+```
+Note: This method doesnt reliable, it doesnt return all node names each call.
+
+### 2) run directly the command line
+``` python
+import subprocess
+cmd_str = '/bin/bash /opt/ros/humble/setup.bash;ros2 node list'
+
+node_list = subprocess.run(cmd_str, shell=True)
+print(node_list)
+```
+Note: This way is more reliable, it returns all node names each time.
+
+### 3) Another ideas
+* Use diagnostics to know which nodes are alive.
+* Home side has the list of all node names hard coded.
+
+General Node: In my opinion it will be easier if all information will be collected in robot side, then it could be accessed by service call.
+
+
 ## Get List of Node Parameters
 Using ros2 cli(you can get the nodes list with thier parameter names):
 ``` bash
@@ -26,6 +59,8 @@ RMW_IMPLEMENTATION=rmw_cyclonedds_cpp ros2 service call /calculator_node/list_pa
 response:
 rcl_interfaces.srv.ListParameters_Response(result=rcl_interfaces.msg.ListParametersResult(names=['use_sim_time', 'a', 'operator', 'b'], prefixes=[]))
 ```
+
+Note: this service wouldn't give you the parameter types, there is another service for types.
 
 ### Using zenoh
 ``` python
