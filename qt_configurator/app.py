@@ -3,14 +3,16 @@ from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5 import uic
 from PyQt5.QtCore import Qt
 
-import zenoh
+from zenoh_utils import ZenohOperator
 
 class MyWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.ui = uic.loadUi("/home/user/projects/ros-parameters-qt-config/qt_configurator/config/configurator.ui")
 
-        self.session = zenoh.open(zenoh.config.Config.from_file("/home/user/projects/ros-parameters-qt-config/qt_configurator/config/qt_configurator_session.json5"))
+        self.zenoh_op = ZenohOperator()
+        self.zenoh_op.send_set_parameter_req()
+        
 
 
     def keyPressEvent(self, event):
