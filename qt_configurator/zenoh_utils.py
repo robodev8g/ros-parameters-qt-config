@@ -2,7 +2,7 @@ import zenoh
 
 from dataclasses import dataclass, field
 from pycdr2 import IdlStruct
-from pycdr2.types import int8, int64, float64
+from pycdr2.types import int8, int64, float64, uint64
 from typing import List
 
 @dataclass
@@ -40,24 +40,42 @@ class SetParametersResponse(IdlStruct):
    results: List[SetParameterResult]
 
 
+@dataclass
+class ListParametersRequest(IdlStruct):
+   prefixes: List[str]
+   depth: uint64
+
+@dataclass
+class ListParametersResponse(IdlStruct):
+   names: List[str]
+   prefixes: List[str]
+
+
+
+
+
 SESSION_CONF = "/home/user/projects/ros-parameters-qt-config/qt_configurator/config/qt_configurator_session.json5"
 
 class ZenohOperator:
     def __init__(self) -> None:
       self.session = zenoh.open(zenoh.config.Config.from_file(SESSION_CONF))
 
-    def reply_callback(self, reply):
-        try:
-            message = SetParametersResponse.deserialize(reply.ok.payload)
-            print(f">> Received {message}")
-        except:
-            print(">> Received ERROR")
-
-
     def send_set_parameter_req(self):
         req = SetParametersRequest(parameters=[Parameter(name="a",value=ParameterValue(type=2, integer_value=12))]).serialize()
         replies = self.session.get("calculator_node/set_parameters", handler=zenoh.Queue(), value=req)
         for reply in replies.receiver:
-            self.reply_callback(reply)
+            try:
+                message = SetParametersResponse.deserialize(reply.ok.payload)
+                print(f">> Received {message}")
+            except:
+                print(">> Received ERROR")
    
-
+    def get_node_parameters_list(self):
+        req = ListParametersRequest(prefixes=[],depth=0).serialize()
+        replies = self.session.get("calculator_node/list_parameters", handler=zenoh.Queue(), value=req)
+        for reply in replies.receiver:
+            try:
+                message = ListParametersResponse.deserialize(reply.ok.payload)
+                print(f">> Received {message}")
+            except:
+                print(">> Received ERROR")

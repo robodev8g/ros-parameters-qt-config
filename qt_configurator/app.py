@@ -11,7 +11,8 @@ class MyWidget(QWidget):
         self.ui = uic.loadUi("/home/user/projects/ros-parameters-qt-config/qt_configurator/config/configurator.ui")
 
         self.zenoh_op = ZenohOperator()
-        self.zenoh_op.send_set_parameter_req()
+        # self.zenoh_op.send_set_parameter_req()
+        self.zenoh_op.get_node_parameters_list()
         
 
 

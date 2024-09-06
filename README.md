@@ -2,6 +2,39 @@
 Using this app, you would configure your ROS system node parameters.
 
 
+## Get List of Node Parameters
+Using ros2 cli(you can get the nodes list with thier parameter names):
+``` bash
+RMW_IMPLEMENTATION=rmw_cyclonedds_cpp ros2 param list
+
+>>> /calculator_node:
+  a
+  b
+  operator
+  use_sim_time
+/math_server_node:
+  legal_operators
+  use_sim_time
+```
+
+Using service call:
+``` bash
+RMW_IMPLEMENTATION=rmw_cyclonedds_cpp ros2 service call /calculator_node/list_parameters rcl_interfaces/srv/ListParameters "{prefixes: [], depth: 0}"
+
+>>> requester: making request: rcl_interfaces.srv.ListParameters_Request(prefixes=[], depth=0)
+
+response:
+rcl_interfaces.srv.ListParameters_Response(result=rcl_interfaces.msg.ListParametersResult(names=['use_sim_time', 'a', 'operator', 'b'], prefixes=[]))
+```
+
+### Using zenoh
+``` python
+req = ListParametersRequest(prefixes=[],depth=0).serialize()
+replies = self.session.get("calculator_node/list_parameters", handler=zenoh.Queue(), value=req)
+```
+
+
+
 ## Set Node Parameter
 Using ros2 cli:
 ``` bash
