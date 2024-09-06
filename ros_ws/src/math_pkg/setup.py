@@ -21,6 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
             f'server = {package_name}.server:main',
+            f'calculator = {package_name}.calculator:main',
         ],
     },
 )
