@@ -1,1 +1,1 @@
-./zenoh-bridge-ros2dds -c zenoh_bridge_conf.json5
+RMW_IMPLEMENTATION=rmw_cyclonedds_cpp ./zenoh-bridge-ros2dds -c zenoh_bridge_conf.json5
