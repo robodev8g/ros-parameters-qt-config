@@ -1,0 +1,6 @@
+int64 num1
+string op
+int64 num2
+---
+float64 res
+bool success
