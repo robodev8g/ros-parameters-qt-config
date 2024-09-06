@@ -5,28 +5,19 @@ Using this app, you would configure your ROS system node parameters.
 ## Get Node Names
 ### 1) use ros2node api method
 ``` python
-import rclpy
 from ros2node.api import get_node_names
 
-rclpy.init()
-manager_node = rclpy.create_node("manager_node")
-nodes = get_node_names(node=manager_node, include_hidden_nodes=True)
-for name, namespace, full_name in nodes:
-    print(full_name)
-manager_node.destroy_node()
-rclpy.shutdown()
+nodes = get_node_names(node=self, include_hidden_nodes=False)
+names = [full_name for name, namespace, full_name in nodes]
 ```
-Note: This method doesnt reliable, it doesnt return all node names each call.
 
 ### 2) run directly the command line
 ``` python
-import subprocess
+import os
 cmd_str = '/bin/bash /opt/ros/humble/setup.bash;ros2 node list'
-
-node_list = subprocess.run(cmd_str, shell=True)
-print(node_list)
+node_list = os.popen(cmd_str).read()
+response.names = node_list.split("\n")[:-1]
 ```
-Note: This way is more reliable, it returns all node names each time.
 
 ### 3) Another ideas
 * Use diagnostics to know which nodes are alive.
