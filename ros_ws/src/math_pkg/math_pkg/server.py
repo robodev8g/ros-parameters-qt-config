@@ -3,12 +3,15 @@ from rclpy.node import Node
 
 from my_interfaces.srv import Exercise
 
+from rclpy.callback_groups import MutuallyExclusiveCallbackGroup, ReentrantCallbackGroup
+from rclpy.executors import MultiThreadedExecutor
+
 class MathServer(Node):
 
     def __init__(self):
         super().__init__('math_server_node')
         self.declare_parameter('legal_operators', ['+', '-', '*'])
-        self.srv = self.create_service(Exercise, 'solve', self.solve_callback)
+        self.create_service(Exercise, 'solve', self.solve_callback, callback_group=ReentrantCallbackGroup())
 
     def solve_callback(self, request: Exercise.Request, response: Exercise.Response):
         self.get_logger().info(f"Incoming request: {request.num1} {request.op} {request.num2}")
@@ -28,7 +31,8 @@ class MathServer(Node):
 def main():
     rclpy.init()
     math_server_node = MathServer()
-    rclpy.spin(math_server_node)
+    executor = MultiThreadedExecutor()
+    rclpy.spin(math_server_node, executor=executor)
     rclpy.shutdown()
 
 
