@@ -1,0 +1,1 @@
+./zenoh-bridge-ros2dds -c zenoh_bridge_conf.json5
