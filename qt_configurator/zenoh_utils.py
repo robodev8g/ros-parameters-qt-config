@@ -51,6 +51,13 @@ class ListParametersResponse(IdlStruct):
    prefixes: List[str]
 
 
+@dataclass
+class NodeNamesRequest(IdlStruct):
+   pass
+
+@dataclass
+class NodeNamesResponse(IdlStruct):
+   names: List[str]
 
 
 
@@ -59,6 +66,18 @@ SESSION_CONF = "/home/user/projects/ros-parameters-qt-config/qt_configurator/con
 class ZenohOperator:
     def __init__(self) -> None:
       self.session = zenoh.open(zenoh.config.Config.from_file(SESSION_CONF))
+    
+    def get_node_names(self):
+        req = NodeNamesRequest().serialize()
+        replies = self.session.get("get_node_names", handler=zenoh.Queue(), value=req)
+        for reply in replies.receiver:
+            try:
+                message = NodeNamesResponse.deserialize(reply.ok.payload)
+                print(f">> Received {message}")
+                return message.names
+            except:
+                print(">> Received ERROR")
+                return None
 
     def send_set_parameter_req(self):
         req = SetParametersRequest(parameters=[Parameter(name="a",value=ParameterValue(type=2, integer_value=12))]).serialize()
@@ -70,12 +89,14 @@ class ZenohOperator:
             except:
                 print(">> Received ERROR")
    
-    def get_node_parameters_list(self):
+    def get_node_parameters_list(self, node_name):
         req = ListParametersRequest(prefixes=[],depth=0).serialize()
-        replies = self.session.get("calculator_node/list_parameters", handler=zenoh.Queue(), value=req)
+        replies = self.session.get(f"{node_name}/list_parameters", handler=zenoh.Queue(), value=req)
         for reply in replies.receiver:
             try:
                 message = ListParametersResponse.deserialize(reply.ok.payload)
-                print(f">> Received {message}")
+                # print(f">> Received {message}")
+                return message.names
             except:
                 print(">> Received ERROR")
+                return None
