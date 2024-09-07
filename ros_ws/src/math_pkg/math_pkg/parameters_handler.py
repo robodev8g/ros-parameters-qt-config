@@ -17,7 +17,7 @@ class ParametersHandler(Node):
         self.get_logger().info("Got node names request ! (option 1 implemented)")
 
         nodes = get_node_names(node=self, include_hidden_nodes=False)
-        response.names = [full_name for name, namespace, full_name in nodes]
+        response.names = [name for name, namespace, full_name in nodes if "zenoh" not in name]
 
         # cmd_str = '/bin/bash /opt/ros/humble/setup.bash;ros2 node list'
         # node_list = os.popen(cmd_str).read()
