@@ -13,9 +13,9 @@ class ParametersConfigurator(QMainWindow):
         self.ui = uic.loadUi("/home/user/projects/ros-parameters-qt-config/qt_configurator/config/configurator.ui", self)
         self.init_ui()
         self.tableWidget.setMaximumWidth(700)
-        self.tableWidget.setColumnWidth(0, 200)
+        self.tableWidget.setColumnWidth(0, 300)
         self.tableWidget.setColumnWidth(1, 200)
-        self.tableWidget.setColumnWidth(2, 300)
+        self.tableWidget.setColumnWidth(2, 200)
 
         self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         
@@ -24,18 +24,22 @@ class ParametersConfigurator(QMainWindow):
         self.comboBox.addItems(names)
         self.comboBox.activated.connect(self.combo_box_changed)
         # self.zenoh_op.send_set_parameter_req()
+
+        
+        # TODO: clock table edit option (the use should edit only the value column)
+        # TODO: add parameter search tool
         
         
         
     def combo_box_changed(self, index):
         current_value = self.comboBox.currentText()
-        parameters_list = self.zenoh_op.get_node_parameters_list(current_value)
-        print(parameters_list)
-        for i in range(self.tableWidget.rowCount()):
-            self.tableWidget.removeRow(0)
-        for index, param_name in enumerate(parameters_list):
-            self.tableWidget.insertRow(index)
-            self.tableWidget.setItem(index, 0, QTableWidgetItem(param_name))
+        parameters_info = self.zenoh_op.get_node_custom_parameter_list(current_value)
+        
+        self.tableWidget.setRowCount(len(parameters_info))
+        for index, param_info in enumerate(parameters_info):
+            self.tableWidget.setItem(index, 0, QTableWidgetItem(param_info.param_name))
+            self.tableWidget.setItem(index, 1, QTableWidgetItem(param_info.param_type))
+            self.tableWidget.setItem(index, 2, QTableWidgetItem(param_info.param_value))
         
     
 
