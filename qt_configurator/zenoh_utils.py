@@ -60,12 +60,31 @@ class NodeNamesResponse(IdlStruct):
    names: List[str]
 
 
+@dataclass
+class NodeParamListRequest(IdlStruct):
+   node_name: str
+
+
+@dataclass
+class ParameterInfo(IdlStruct):
+   param_name: str
+   param_type: str
+   param_value: str
+
+
+@dataclass
+class NodeParamListResponse(IdlStruct):
+   parameters_info: List[ParameterInfo]
+
+
+
 
 SESSION_CONF = "/home/user/projects/ros-parameters-qt-config/qt_configurator/config/qt_configurator_session.json5"
 
 class ZenohOperator:
     def __init__(self) -> None:
       self.session = zenoh.open(zenoh.config.Config.from_file(SESSION_CONF))
+      
     
     def get_node_names(self):
         req = NodeNamesRequest().serialize()
@@ -74,6 +93,31 @@ class ZenohOperator:
             try:
                 message = NodeNamesResponse.deserialize(reply.ok.payload)
                 print(f">> Received {message}")
+                return message.names
+            except:
+                print(">> Received ERROR")
+                return None
+    
+    def get_node_custom_parameter_list(self, node_name):
+        req = NodeParamListRequest(node_name=node_name).serialize()
+        replies = self.session.get("get_node_parameter_list", handler=zenoh.Queue(), value=req)
+        for reply in replies.receiver:
+            try:
+                message = NodeParamListResponse.deserialize(reply.ok.payload)
+                print(f">> Received {message}")
+                return message.parameters_info
+            except:
+                print(">> Received ERROR")
+                return None
+
+   
+    def get_node_parameters_list(self, node_name):
+        req = ListParametersRequest(prefixes=[],depth=0).serialize()
+        replies = self.session.get(f"{node_name[1:]}/list_parameters", handler=zenoh.Queue(), value=req)
+        for reply in replies.receiver:
+            try:
+                message = ListParametersResponse.deserialize(reply.ok.payload)
+                # print(f">> Received {message}")
                 return message.names
             except:
                 print(">> Received ERROR")
@@ -88,15 +132,3 @@ class ZenohOperator:
                 print(f">> Received {message}")
             except:
                 print(">> Received ERROR")
-   
-    def get_node_parameters_list(self, node_name):
-        req = ListParametersRequest(prefixes=[],depth=0).serialize()
-        replies = self.session.get(f"{node_name}/list_parameters", handler=zenoh.Queue(), value=req)
-        for reply in replies.receiver:
-            try:
-                message = ListParametersResponse.deserialize(reply.ok.payload)
-                # print(f">> Received {message}")
-                return message.names
-            except:
-                print(">> Received ERROR")
-                return None
