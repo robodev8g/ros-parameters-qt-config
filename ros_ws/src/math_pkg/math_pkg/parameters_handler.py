@@ -51,13 +51,11 @@ class ParametersHandler(Node):
         client = self.create_client(ListParameters, f"{request.node_name}/list_parameters", callback_group=self.mcb2)
         future: ListParameters.Response = await client.call_async(request=ListParameters.Request())
         param_names = future.result.names
-        # self.get_logger().info(f"future result: {future.result.names}")
         
         # Types
         client = self.create_client(GetParameterTypes, f"{request.node_name}/get_parameter_types", callback_group=self.mcb3)
         future: GetParameterTypes.Response = await client.call_async(request=GetParameterTypes.Request(names=param_names))
         param_types = [PARAMETER_TYPES[str(type)] for type in future.types]
-        # self.get_logger().info(f"future types result: {param_types}")
 
         # Values
         client = self.create_client(GetParameters, f"{request.node_name}/get_parameters", callback_group=self.mcb2)

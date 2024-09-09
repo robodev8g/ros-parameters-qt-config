@@ -92,7 +92,7 @@ class ZenohOperator:
         for reply in replies.receiver:
             try:
                 message = NodeNamesResponse.deserialize(reply.ok.payload)
-                print(f">> Received {message}")
+                # print(f">> Received {message}")
                 return message.names
             except:
                 print(">> Received ERROR")
@@ -104,7 +104,7 @@ class ZenohOperator:
         for reply in replies.receiver:
             try:
                 message = NodeParamListResponse.deserialize(reply.ok.payload)
-                print(f">> Received {message}")
+                # print(f">> Received {message}")
                 return message.parameters_info
             except:
                 print(">> Received ERROR")
