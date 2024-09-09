@@ -84,7 +84,7 @@ SESSION_CONF = "/home/user/projects/ros-parameters-qt-config/qt_configurator/con
 class ZenohOperator:
     def __init__(self) -> None:
       self.session = zenoh.open(zenoh.config.Config.from_file(SESSION_CONF))
-      
+      # TODO: handle node names with namespace prefix
     
     def get_node_names(self):
         req = NodeNamesRequest().serialize()
@@ -123,9 +123,17 @@ class ZenohOperator:
                 print(">> Received ERROR")
                 return None
 
-    def send_set_parameter_req(self):
-        req = SetParametersRequest(parameters=[Parameter(name="a",value=ParameterValue(type=2, integer_value=12))]).serialize()
-        replies = self.session.get("calculator_node/set_parameters", handler=zenoh.Queue(), value=req)
+    # def create_parameter_value_object(self, param_type, param_value):
+    #     pass
+
+    # TODO: change ParameterInfo custom interface type to be uint8
+    # TODO: move type number -> type name mapping from robot side to home side.
+    # TODO: Handle a database of node parameters with types and values (use data as cache and add refreash button),
+            # then you would  use the type here below
+    def send_set_parameter_req(self, node_name, param_name, param_type, param_value):
+
+        req = SetParametersRequest(parameters=[Parameter(name=param_name,value=ParameterValue(type=2, integer_value=12))]).serialize()
+        replies = self.session.get(f"{node_name[1:]}/set_parameters", handler=zenoh.Queue(), value=req)
         for reply in replies.receiver:
             try:
                 message = SetParametersResponse.deserialize(reply.ok.payload)

@@ -17,6 +17,7 @@ class ParametersConfigurator(QMainWindow):
         self.tableWidget.setColumnWidth(0, 300)
         self.tableWidget.setColumnWidth(1, 200)
         self.tableWidget.setColumnWidth(2, 200)
+        # TODO: Create global variables for NAME_COL_INDEX, TYPE_COL_INDEX, VALUE_COL_INDEX
 
         # TODO: find a way to configure that with QtDesigner
         self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
@@ -29,10 +30,9 @@ class ParametersConfigurator(QMainWindow):
         self.comboBox.addItems(names)
         self.comboBox.activated.connect(self.combo_box_changed)
         self.tableWidget.cellChanged.connect(self.param_value_changed)
-        # self.zenoh_op.send_set_parameter_req()
+        
 
         
-        # TODO: enable table edit option only for value column
         # TODO: color rows by successful of set param.
         # TODO: create Update Parameters button to set all changes
         # TODO: add parameter search tool
@@ -40,8 +40,8 @@ class ParametersConfigurator(QMainWindow):
         
     def combo_box_changed(self, index):
         self.tableWidget.cellChanged.disconnect(self.param_value_changed)
-        current_value = self.comboBox.currentText()
-        parameters_info = self.zenoh_op.get_node_custom_parameter_list(current_value)
+        node_name = self.comboBox.currentText()
+        parameters_info = self.zenoh_op.get_node_custom_parameter_list(node_name)
         
         self.tableWidget.setRowCount(len(parameters_info))
         for index, param_info in enumerate(parameters_info):
@@ -55,14 +55,22 @@ class ParametersConfigurator(QMainWindow):
             self.tableWidget.item(i,1).setFlags(flags & ~Qt.ItemIsEditable)
         
         self.tableWidget.cellChanged.connect(self.param_value_changed)
-        # Change row color example
-        # self.tableWidget.item(0,0).setBackground(QColor(128, 255, 128))
-        # self.tableWidget.item(0,1).setBackground(QColor(128, 255, 128))
-        # self.tableWidget.item(0,2).setBackground(QColor(128, 255, 128))
 
 
     def param_value_changed(self, row, column):
-        print(f"Cell ({row}, {column}) edited to: {self.tableWidget.item(row, column).text()}")
+        self.tableWidget.cellChanged.disconnect(self.param_value_changed)
+        node_name = self.comboBox.currentText()
+        param_type = self.tableWidget.item(row, 1)
+        param_value = self.tableWidget.item(row, column).text()
+        print(f"Cell ({row}, {column}) edited to: {param_value}")
+        
+        # self.zenoh_op.send_set_parameter_req()
+        # Change row color example - color should be corrospond to success of set service
+        self.tableWidget.item(row,0).setBackground(QColor(128, 255, 128))
+        self.tableWidget.item(row,1).setBackground(QColor(128, 255, 128))
+        self.tableWidget.item(row,2).setBackground(QColor(128, 255, 128))
+        self.tableWidget.cellChanged.connect(self.param_value_changed)
+
 
     def init_ui(self):
         self.tableWidget: QTableWidget = self.ui.tableWidget
