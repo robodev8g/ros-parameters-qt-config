@@ -28,6 +28,7 @@ class ParametersConfigurator(QMainWindow):
         names = self.zenoh_op.get_node_names()
         self.comboBox.addItems(names)
         self.comboBox.activated.connect(self.combo_box_changed)
+        self.tableWidget.cellChanged.connect(self.param_value_changed)
         # self.zenoh_op.send_set_parameter_req()
 
         
@@ -37,8 +38,8 @@ class ParametersConfigurator(QMainWindow):
         # TODO: add parameter search tool
         
         
-        
     def combo_box_changed(self, index):
+        self.tableWidget.cellChanged.disconnect(self.param_value_changed)
         current_value = self.comboBox.currentText()
         parameters_info = self.zenoh_op.get_node_custom_parameter_list(current_value)
         
@@ -48,22 +49,24 @@ class ParametersConfigurator(QMainWindow):
             self.tableWidget.setItem(index, 1, QTableWidgetItem(param_info.param_type))
             self.tableWidget.setItem(index, 2, QTableWidgetItem(param_info.param_value))
         
-        
-        
         for i in range(self.tableWidget.rowCount()):
             flags = self.tableWidget.item(i, 0).flags()
             self.tableWidget.item(i,0).setFlags(flags & ~Qt.ItemIsEditable)
             self.tableWidget.item(i,1).setFlags(flags & ~Qt.ItemIsEditable)
         
+        self.tableWidget.cellChanged.connect(self.param_value_changed)
         # Change row color example
         # self.tableWidget.item(0,0).setBackground(QColor(128, 255, 128))
         # self.tableWidget.item(0,1).setBackground(QColor(128, 255, 128))
         # self.tableWidget.item(0,2).setBackground(QColor(128, 255, 128))
 
+
+    def param_value_changed(self, row, column):
+        print(f"Cell ({row}, {column}) edited to: {self.tableWidget.item(row, column).text()}")
+
     def init_ui(self):
         self.tableWidget: QTableWidget = self.ui.tableWidget
         self.comboBox: QComboBox = self.ui.comboBox
-        
 
 
     def keyPressEvent(self, event):
@@ -73,7 +76,6 @@ class ParametersConfigurator(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-
     
     window = ParametersConfigurator()
 
