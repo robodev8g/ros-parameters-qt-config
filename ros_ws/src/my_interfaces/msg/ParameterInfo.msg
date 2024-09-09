@@ -1,3 +1,3 @@
 string param_name
-string param_type
+int8 param_type
 string param_value

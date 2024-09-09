@@ -22,7 +22,7 @@ setup(
         'console_scripts': [
             f'server = {package_name}.server:main',
             f'calculator = {package_name}.calculator:main',
-            f'parameters_handler = {package_name}.parameters_handler:main',
+            f'parameter_server = {package_name}.parameter_server:main',
         ],
     },
 )

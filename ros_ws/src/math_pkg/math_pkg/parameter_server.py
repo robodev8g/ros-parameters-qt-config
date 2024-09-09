@@ -23,10 +23,10 @@ PARAMETER_TYPES = {
                     "9": "string array"
                 }
 
-class ParametersHandler(Node):
+class ParameterServer(Node):
 
     def __init__(self):
-        super().__init__('parameters_handler')
+        super().__init__('parameter_server')
         self.mcb1 = MutuallyExclusiveCallbackGroup()
         self.mcb2 = MutuallyExclusiveCallbackGroup()
         self.mcb3 = MutuallyExclusiveCallbackGroup()
@@ -55,7 +55,8 @@ class ParametersHandler(Node):
         # Types
         client = self.create_client(GetParameterTypes, f"{request.node_name}/get_parameter_types", callback_group=self.mcb3)
         future: GetParameterTypes.Response = await client.call_async(request=GetParameterTypes.Request(names=param_names))
-        param_types = [PARAMETER_TYPES[str(type)] for type in future.types]
+        # param_types = [PARAMETER_TYPES[str(type)] for type in future.types]
+        param_types = future.types
 
         # Values
         client = self.create_client(GetParameters, f"{request.node_name}/get_parameters", callback_group=self.mcb2)
@@ -78,8 +79,8 @@ class ParametersHandler(Node):
 
 def main():
     rclpy.init()
-    parameters_handler_node = ParametersHandler()
-    rclpy.spin(parameters_handler_node)
+    parameters_server_node = ParameterServer()
+    rclpy.spin(parameters_server_node)
     rclpy.shutdown()
 
 
