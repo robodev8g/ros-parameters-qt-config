@@ -68,7 +68,7 @@ class NodeParamListRequest(IdlStruct):
 @dataclass
 class ParameterInfo(IdlStruct):
    param_name: str
-   param_type: str
+   param_type: int8
    param_value: str
 
 
@@ -76,7 +76,17 @@ class ParameterInfo(IdlStruct):
 class NodeParamListResponse(IdlStruct):
    parameters_info: List[ParameterInfo]
 
-
+PARAMETER_TYPES = {
+                    "1": "bool",
+                    "2": "integer",
+                    "3": "double",
+                    "4": "string",
+                    "5": "byte array",
+                    "6": "bool array",
+                    "7": "integer array",
+                    "8": "double array",
+                    "9": "string array"
+                }
 
 
 SESSION_CONF = "/home/user/projects/ros-parameters-qt-config/qt_configurator/config/qt_configurator_session.json5"
@@ -123,16 +133,8 @@ class ZenohOperator:
                 print(">> Received ERROR")
                 return None
 
-    # def create_parameter_value_object(self, param_type, param_value):
-    #     pass
-
-    # TODO: change ParameterInfo custom interface type to be uint8
-    # TODO: move type number -> type name mapping from robot side to home side.
-    # TODO: Handle a database of node parameters with types and values (use data as cache and add refreash button),
-            # then you would  use the type here below
-    def send_set_parameter_req(self, node_name, param_name, param_type, param_value):
-
-        req = SetParametersRequest(parameters=[Parameter(name=param_name,value=ParameterValue(type=2, integer_value=12))]).serialize()
+    def send_set_parameter_req(self, node_name, param_name, param_value_obj):
+        req = SetParametersRequest(parameters=[Parameter(name=param_name,value=param_value_obj)]).serialize()
         replies = self.session.get(f"{node_name[1:]}/set_parameters", handler=zenoh.Queue(), value=req)
         for reply in replies.receiver:
             try:
