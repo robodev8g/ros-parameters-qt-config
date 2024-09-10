@@ -48,7 +48,7 @@ class ParameterHandler:
             if param_info.param_name == param_name:
                 attribute_name = PARAMETER_TYPES[str(param_info.param_type)] + " value"
                 attribute_name = attribute_name.replace(" ", "_")
-                if "string" not in attribute_name:
+                if "string" not in attribute_name or "array" in attribute_name:
                     param_new_value = eval(param_new_value)
                 param_value_obj = ParameterValue(type=param_info.param_type)
                 exec(f"param_value_obj.{attribute_name} = param_new_value")
